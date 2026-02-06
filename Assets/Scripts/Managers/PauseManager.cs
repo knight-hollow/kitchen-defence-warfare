@@ -1,108 +1,60 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem; // 必须引用新的输入系统
 
-/// <summary>
-/// 暂停管理：暂停/恢复/重新开始/回主界面
-/// 适用于 VR/XR：暂停时 Time.timeScale = 0
-/// </summary>
 public class PauseManager : MonoBehaviour
 {
-    [Header("UI")]
-    [Tooltip("暂停面板（Panel），默认应为隐藏 SetActive(false)")]
-    public GameObject pausePanel;
+    public GameObject pauseMenu; // 拖入你的暂停 UI
+    public InputActionProperty pauseAction; // 稍后绑定左手菜单键
 
-    [Header("Optional: Pause Button (UI)")]
-    [Tooltip("如果你有一个 UI 的 Pause 按钮，可以在 OnClick 里调用 TogglePause()")]
-    public bool startPaused = false;
+    private bool isPaused = false;
 
-    private bool paused = false;
-
-    private void Awake()
+    void Update()
     {
-        // 防呆：场景加载时确保时间正常
-        Time.timeScale = 1f;
+        // 检测按键是否在这一帧被按下
+        if (pauseAction.action.WasPressedThisFrame())
+        {
+            TogglePause();
+        }
     }
 
-    private void Start()
+        void OnEnable()
     {
-        if (pausePanel != null)
-            pausePanel.SetActive(startPaused);
-
-        paused = startPaused;
-
-        if (paused)
-            Time.timeScale = 0f;
+        // 确保按键动作被激活
+        pauseAction.action.Enable();
     }
 
-    /// <summary>
-    /// 切换暂停/恢复（推荐绑到 UI 按钮或手柄菜单键）
-    /// </summary>
+    void OnDisable()
+    {
+        pauseAction.action.Disable();
+    }
+
     public void TogglePause()
     {
-        if (paused) Resume();
-        else Pause();
+        isPaused = !isPaused;
+
+        if (isPaused)
+        {
+            pauseMenu.SetActive(true);
+            Time.timeScale = 0f; // 冻结时间
+            // 如果需要，这里可以加入锁定射线追踪的代码
+            // 让 UI 强制出现在相机前方 1.5 米处
+            Transform camTransform = Camera.main.transform;
+            pauseMenu.transform.position = camTransform.position + camTransform.forward * 1.5f;
+
+            // 让 UI 面向玩家
+            pauseMenu.transform.LookAt(camTransform.position);
+            pauseMenu.transform.Rotate(0, 180, 0); // LookAt 默认是背面，这里转回正面
+        }
+        else
+        {
+            pauseMenu.SetActive(false);
+            Time.timeScale = 1f; // 恢复时间
+        }
     }
 
-    /// <summary>
-    /// 暂停
-    /// </summary>
-    public void Pause()
+    public void QuitGame()
     {
-        paused = true;
-        Time.timeScale = 0f;
-
-        if (pausePanel != null)
-            pausePanel.SetActive(true);
-    }
-
-    /// <summary>
-    /// 恢复
-    /// </summary>
-    public void Resume()
-    {
-        paused = false;
-        Time.timeScale = 1f;
-
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-    }
-
-    /// <summary>
-    /// 重新开始当前游戏（建议 GameScene 名字固定为 "GameScene"）
-    /// </summary>
-    public void RestartGame()
-    {
-        Time.timeScale = 1f;
-        paused = false;
-
-        SceneManager.LoadScene("GameScene");
-    }
-
-    /// <summary>
-    /// 回到主界面（建议 MainMenu 名字固定为 "MainMenu"）
-    /// </summary>
-    public void BackToMainMenu()
-    {
-        Time.timeScale = 1f;
-        paused = false;
-
-        SceneManager.LoadScene("MainMenu");
-    }
-
-    /// <summary>
-    /// （可选）退出应用：仅在真机/打包时生效
-    /// </summary>
-    public void QuitApp()
-    {
-        Time.timeScale = 1f;
         Application.Quit();
-    }
-
-    /// <summary>
-    /// 供外部查询当前是否暂停
-    /// </summary>
-    public bool IsPaused()
-    {
-        return paused;
+        Debug.Log("Game Exiting...");
     }
 }
