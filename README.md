@@ -2,6 +2,8 @@
 
 *A Meta Quest VR wave-based shooter built with Unity 6000.3*
 
+
+![CoverImage](./kitchen.png "kitchen")
 ---
 
 ## 📌 Project Overview
