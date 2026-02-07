@@ -1,35 +1,143 @@
-Overcook VR is an immersive Virtual Reality experience built on the Unity 6 engine. It blends the frantic multi-tasking of kitchen simulation with high-stakes Wave Defense combat. Protect your front desk from waves of monsters while utilizing optimized VR interactions.
-## 🚀 Key Features
-* Unity 6 Optimized: Fully utilizes the GPU Resident Drawer and GPU Occlusion Culling to ensure smooth 72/90 FPS performance on standalone VR headsets.
+# 🧑‍🍳 VR Kitchen Defense Warfare
 
-* Tactile VR Combat: Built with the XR Interaction Toolkit (XRI).
+*A Meta Quest VR wave-based shooter built with Unity 6000.3*
 
-  * Grip to Hold: Physical grabbing of bullets(fruits).
+---
 
-  * Trigger to Fire: Realistic haptic shooting mechanics.
+## 📌 Project Overview
 
-* Dynamic Wave System: A weighted random spawning system (WaveManager) that scales difficulty by adjusting monster types and spawn counts.
+**VR Kitchen Defense Warfare** is a room-scale VR wave-based defense game developed with **Unity 6000.3** and **XR Interaction Toolkit**, targeting **Meta Quest** devices.
 
-* Intelligent UI Follow: Custom FollowHeadUI script ensures menus stay within the player's FOV (Field of View) without causing motion sickness.
+The player stands inside a kitchen and defends a front desk against incoming monsters.  
+Enemies spawn from multiple locations, navigate intelligently using NavMesh, and attempt to reach the target desk.  
+The player grabs different food-themed weapons and eliminates enemies before losing all health.
 
-* Splash Damage System: Weapons support both direct hits and Area of Effect (AoE) explosions.
+---
 
-## 🎮 How to Play
-1. Grip (Side Button): Grab the bullets(fruits) from the table.
+## 🎮 Core Gameplay
 
-2. Trigger (Index Finger): Pull the trigger to shoot.
+### Player
+- Starts with **10 HP**
+- Loses **1 HP** when a monster reaches the front desk
+- Uses VR controllers to:
+  - Grab weapons
+  - Shoot enemies
+  - Pause / resume the game
 
-3. Defend: Stop monsters from reaching the Front Desk. Each leak costs 1 HP.
+---
 
-4. Menu: Press the Left Controller Menu Button to toggle the pause menu.
+### Weapons
 
-## 🏗️ Installation
-1. Open the project in Unity 6000.3.1f1.
-  
-2. Ensure OpenXR or Oculus XR Plugin is installed via Package Manager.
-  
-3. Build to Android (Quest) or run via Oculus Link.
+| Weapon | Fire Rate | Damage | Special |
+|------|----------|--------|--------|
+| 🥚 Egg Gun | Fast | Low | Single target |
+| 🍅 Tomato Gun | Medium | Medium | Balanced |
+| 🍉 Watermelon Gun | Slow | High | Area damage |
+
+- Weapons are grabbed via **XR Grab Interactable**
+- Guns attach naturally to the hand
+- Bullets are physics-based
+- Gun and bullet collisions are separated using **Layer Collision Matrix**
+
+---
+
+### Enemies
+- **4 different monster types**
+- Each monster:
+  - Has **100 HP**
+  - Uses **NavMeshAgent** for obstacle-aware navigation
+- Monsters spawn from **3 different spawn points**
+- Spawn system includes:
+  - Random monster selection
+  - Spawn-point occupancy checks (prevents overlapping)
+
+---
+
+### Waves
+
+| Wave | Enemy Count |
+|-----|-------------|
+| 1 | 15 |
+| 2 | 20 |
+| 3 | 30 |
+
+- Game ends when:
+  - All waves are cleared → **Victory**
+  - Player HP reaches 0 → **Failure**
+
+---
+
+## 🧭 Enemy Navigation
+
+Enemies use **Unity NavMesh** for optimized pathfinding:
+
+- `NavMeshSurface` baked on kitchen floor
+- `NavMeshAgent` on each monster
+- Dynamic repathing toward a target empty GameObject
+- Automatically avoids:
+  - Tables
+  - Walls
+  - Doorways
+- Stable indoor navigation without jitter
+
+---
+
+## 🖥️ UI & Scene Flow
+
+### Scenes
+
+| Scene Name | Description |
+|----------|------------|
+| `MainMenu` | Start / Quit |
+| `GameScene` | Main gameplay |
+| `ResultScene` | Win / Lose summary |
+
+---
+
+### UI Flow
+
+```
+MainMenu
+   ↓ Start
+GameScene
+   ↓ Win / Lose
+ResultScene
+   ↙ Restart   ↘ Main Menu
+```
 
 
+---
 
+## 🛠️ Technologies Used
 
+- **Unity 6000.3**
+- **XR Interaction Toolkit**
+- **Input System (New)**
+- **NavMesh / NavMeshAgent**
+- **Meta Quest SDK**
+- **World Space XR UI**
+
+---
+
+## ✅ Solved Technical Challenges
+
+- XR UI interaction via controller ray
+- Stable grab & drop behavior (State-based selection)
+- Trigger-based shooting using Input System
+- Gun & bullet collision isolation
+- Random monster spawning without overlap
+- Reliable NavMesh-based enemy navigation
+- Menu button pause without UI dependency
+- Scene switching with safe timeScale handling
+- Unity Inspector/Layout recovery during development
+
+---
+
+## 🚀 Future Improvements
+
+- Boss enemies
+- Weapon upgrades
+- Spatial sound effects
+- Difficulty scaling
+- Visual damage feedback
+- Monster and weapon animations
